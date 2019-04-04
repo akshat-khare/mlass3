@@ -418,7 +418,7 @@ def testwhole(thisnode,targetindex, xarrwhole, yarrwhole):
         else:
             numwrong+=1
     if(numright+numwrong==0):
-        acc= 0.5
+        acc= 0.0
     else:
         acc = ((1.0*numright)/(1.0*(numright+numwrong)))
     print("accuracy ----------------------------" +str(acc))
@@ -496,12 +496,12 @@ def grownodeprune(thisnode, targetvaliindex, ylistvali):
                 continue
             if(tempylist[1]>tempylist[0]):
                 if((tempylistvali[0]+tempylistvali[1])==0):
-                    tempaccuracyprune = 0.5
+                    tempaccuracyprune = 0.0
                 else:
                     tempaccuracyprune = (1.0*(tempylistvali[1]))/(1.0*(tempylistvali[0]+tempylistvali[1]))
             else:
                  if((tempylistvali[0]+tempylistvali[1])==0):
-                     tempaccuracyprune = 0.5
+                     tempaccuracyprune = 0.0
                  else:       
                      tempaccuracyprune = (1.0*(tempylistvali[0]))/(1.0*(tempylistvali[0]+tempylistvali[1]))
             
@@ -517,9 +517,9 @@ def grownodeprune(thisnode, targetvaliindex, ylistvali):
                 tempnode2.setxsplit(thisnode.xsplit)
                 
                 if(tempylist[1]>tempylist[0]):
-                    tempnode2.yleaf=0
+                    tempnode2.yleaf=1
                 else:
-                    tempnode2.yleaf=1  
+                    tempnode2.yleaf=0  
                 temnodechildddlist =[]
                 temnodechildddlist.append(tempnode2)
                 tempnode.setchild(temnodechildddlist)
@@ -553,7 +553,7 @@ for i in range(numvali):
 grownodeprune(root,temptargetvali,tempysplitvali)
 print("done")
 numnode=0
-printtree(root)
+#printtree(root)
 print(numprune)
 print(numnode)
 
