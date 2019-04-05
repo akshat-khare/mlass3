@@ -411,8 +411,8 @@ for i in range(23):
 # print(xarrtrain)
 # print(yarrtrain)
 
-debug=0
 # part c
+debug=0
 medianarr=[0.0]*23
 maxsplitallowed=3
 def allfeatureexploredc(thisnode, numsplit):

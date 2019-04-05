@@ -708,6 +708,7 @@ for i in range(numtrain):
 
 
 # print("hell")
+print("train")
 print((numright*1.0)/(1.0*numtrain))
 
 
@@ -740,6 +741,7 @@ for i in range(numvali):
 print(numright)
 print(numwrong)
 print(numvali)
+print("vali")
 print((numright*1.0)/(1.0*numvali))
 
 
@@ -770,6 +772,7 @@ for i in range(numtest):
 print(numright)
 print(numwrong)
 print(numvali)
+print("test")
 print((numright*1.0)/(1.0*numtest))
 
 
