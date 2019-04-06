@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import random
 class Node:
     def __init__(self,numtheta):
         self.theta=[0.0]*numtheta
@@ -120,7 +121,9 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
     numwholedatapass=0
     numiter=0
     costarr,oldavgcost = findtotalcostarr(inparr,outarr,network)
-    
+    shufflehelper = []
+    for i in range(len(inparr)):
+    	shufflehelper.append(i)
     while(0==0):
         numiter+=1
         print("numiter is")
@@ -129,13 +132,13 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
         print(numwholedatapass)
         ioindex = epochsize*epochcount+subepochiter
         print("ioindex is "+str(ioindex))
-        tempforwardpass = forwardpass(inparr[ioindex],network)
+        tempforwardpass = forwardpass(inparr[shufflehelper[ioindex]],network)
         for i in range(len(network)-1,-1,-1):
             #lets calculate deljtheta by del netj
             for j in range(len(network[i])):
                 tempnode = network[i][j]
                 if(i==len(network)-1):
-                    tempnode.deljthetabydelnet = -1.0*(outarr[ioindex][j]-tempnode.output)*(tempnode.output)*(1.0-tempnode.output)
+                    tempnode.deljthetabydelnet = -1.0*(outarr[shufflehelper[ioindex]][j]-tempnode.output)*(tempnode.output)*(1.0-tempnode.output)
                 else:
                     temp=0.0
                     nextlayer = network[i+1]
@@ -148,7 +151,7 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
                         if(k==len(tempnode.theta)-1):
                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * 1.0
                         else:
-                            tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * inparr[ioindex][k]
+                            tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * inparr[shufflehelper[ioindex]][k]
                 else:
                     prevlayer = network[i-1]
                     for k in range(len(tempnode.theta)):
@@ -189,6 +192,7 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
                 if(len(inparr)==epochcount*epochsize):
                     numwholedatapass+=1
                     epochcount=0
+                    random.shuffle(shufflehelper)
         
             
             
@@ -204,11 +208,11 @@ sampleinparr = [[0.0, 1.0],[1.0,0.0],[0.0,0.0],[1.0,1.0]]
 
 # sampleoutput = [[0.01, 0.99]]
 sampleoutput = [[0.99],[0.99],[0.01],[0.99]]
-samplehiddeninfo = [4,4]
-samplelearningrate=0.5
+samplehiddeninfo = [1]
+samplelearningrate=1.0
 sampletheta = [[[.15,.20,.35],[.25,.30,.35]],[[.40,.45,.60],[.50,.55,.60]]]
 
-samplenetwork = neuralnet(sampleinparr,sampleoutput,samplehiddeninfo,samplelearningrate,1, pow(10,-3),sampletheta)
+samplenetwork = neuralnet(sampleinparr,sampleoutput,samplehiddeninfo,samplelearningrate,1, pow(10,-4),sampletheta)
 print(samplenetwork)
             
                 
