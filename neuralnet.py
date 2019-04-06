@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[14]:
 
 
 import numpy as np
 import math
+import random
 class Node:
     def __init__(self,numtheta):
         self.theta=[0.0]*numtheta
@@ -78,7 +79,7 @@ def printdeljtheta(network):
                 templist[i][j].append(network[i][j].deljthetabydelthetaunit[k])
     print(templist)
     return
-def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, sampletheta):
+def neuralnet(inparr, outarr, hiddeninfo,learningrate, batchsize,costthres, sampletheta):
     numtrain = len(inparr)
     diminput= len(inparr[0])
     dimoutput = len(outarr[0])
@@ -121,27 +122,29 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
     print(deljthetabydelthetamat)
     print("real deljtheta")
     printdeljtheta(network)
-    subepochiter=0
-    epochcount=0
+    subbatchiter=0
+    batchcount=0
     numwholedatapass=0
     numiter=0
     costarr,oldavgcost = findtotalcostarr(inparr,outarr,network)
-    
+    shufflehelper = []
+    for i in range(len(inparr)):
+    	shufflehelper.append(i)
     while(0==0):
         numiter+=1
         print("numiter is")
         print(numiter)
         print("numwholedata pass is")
         print(numwholedatapass)
-        ioindex = epochsize*epochcount+subepochiter
+        ioindex = batchsize*batchcount+subbatchiter
         print("ioindex is "+str(ioindex))
-        tempforwardpass = forwardpass(inparr[ioindex],network)
+        tempforwardpass = forwardpass(inparr[shufflehelper[ioindex]],network)
         for i in range(len(network)-1,-1,-1):
             #lets calculate deljtheta by del netj
             for j in range(len(network[i])):
                 tempnode = network[i][j]
                 if(i==len(network)-1):
-                    tempnode.deljthetabydelnet = -1.0*(outarr[ioindex][j]-tempnode.output)*(tempnode.output)*(1.0-tempnode.output)
+                    tempnode.deljthetabydelnet = -1.0*(outarr[shufflehelper[ioindex]][j]-tempnode.output)*(tempnode.output)*(1.0-tempnode.output)
                 else:
                     temp=0.0
                     nextlayer = network[i+1]
@@ -154,7 +157,7 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
                         if(k==len(tempnode.theta)-1):
                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * 1.0
                         else:
-                            tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * inparr[ioindex][k]
+                            tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * inparr[shufflehelper[ioindex]][k]
                 else:
                     prevlayer = network[i-1]
                     for k in range(len(tempnode.theta)):
@@ -162,7 +165,7 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * 1.0
                         else:
                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * prevlayer[k].output
-        subepochiter+=1
+        subbatchiter+=1
         for i in range(len(network)):
                 for j in range(len(network[i])):
                     for k in range(len(network[i][j].theta)):
@@ -171,30 +174,38 @@ def neuralnet(inparr, outarr, hiddeninfo,learningrate, epochsize,costthres, samp
         print(deljthetabydelthetamat)
         print("real deljtheta")
         printdeljtheta(network)
-        if(subepochiter==epochsize):
-            print("epoch over")
+        if(subbatchiter==batchsize):
+            print("batch over")
             for i in range(len(network)):
                 for j in range(len(network[i])):
                     for k in range(len(network[i][j].theta)):
-                        network[i][j].theta[k] = network[i][j].theta[k] - learningrate * deljthetabydelthetamat[i][j][k]/(1.0*epochsize)
+                        network[i][j].theta[k] = network[i][j].theta[k] - learningrate * deljthetabydelthetamat[i][j][k]/(1.0*batchsize)
                         deljthetabydelthetamat[i][j][k]=0.0
             #set deljthetabydel zero
             
-            costarr, newavgcost=findtotalcostarr(inparr,outarr,network)
-            print("cost is")
-            print(newavgcost)
-            if(newavgcost<costthres):
-                print("cost is lower")
-                break
-            elif(numwholedatapass>=20000):
-                break
-            else:
-                oldavgcost=newavgcost
-                subepochiter=0
-                epochcount+=1
-                if(len(inparr)==epochcount*epochsize):
-                    numwholedatapass+=1
-                    epochcount=0
+            
+            
+            subbatchiter=0
+            batchcount+=1
+            if(len(inparr)==batchcount*batchsize):
+                print("shuffle the shufflehelper")
+                numwholedatapass+=1
+                batchcount=0
+                random.shuffle(shufflehelper)
+
+                costarr, newavgcost=findtotalcostarr(inparr,outarr,network)
+                
+                print("cost is")
+                print(newavgcost)
+                if(newavgcost<costthres):
+                    print("cost is lower")
+                    break
+                elif(numwholedatapass>=20000):
+                    break
+                else:
+                    #do nothing continue
+                    oldavgcost=newavgcost
+                
         
             
             
@@ -210,15 +221,14 @@ sampleinparr = [[0.0, 1.0],[1.0,0.0],[0.0,0.0],[1.0,1.0]]
 
 # sampleoutput = [[0.01, 0.99]]
 sampleoutput = [[0.99],[0.99],[0.01],[0.99]]
-samplehiddeninfo = [4,4]
+samplehiddeninfo = [1]
 samplelearningrate=0.5
 sampletheta = [[[.15,.20,.35],[.25,.30,.35]],[[.40,.45,.60],[.50,.55,.60]]]
 
-samplenetwork = neuralnet(sampleinparr,sampleoutput,samplehiddeninfo,samplelearningrate,1, pow(10,-3),sampletheta)
+samplenetwork = neuralnet(sampleinparr,sampleoutput,samplehiddeninfo,samplelearningrate,1, pow(10,-4),sampletheta)
 print(samplenetwork)
             
                 
-    
     
 
 
