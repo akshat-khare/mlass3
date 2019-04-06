@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 import numpy as np
 import math
 class Node:
@@ -214,3 +220,10 @@ print(samplenetwork)
                 
     
     
+
+
+# In[ ]:
+
+
+pow(10,-3)
+
