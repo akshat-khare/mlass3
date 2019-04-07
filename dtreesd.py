@@ -5,7 +5,7 @@
 
 
 import sys
-trainfname = open(sys.argv[2], 'r')
+trainfname = open(sys.argv[1], 'r')
 xarrtrainori = []
 yarrtrain = []
 xidentifier= [3,1,2,2,3,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3]
@@ -47,7 +47,7 @@ print("parsing done")
 # In[2]:
 
 
-valifname = open(sys.argv[3], 'r')
+valifname = open(sys.argv[2], 'r')
 xarrvaliori = []
 yarrvali = []
 for i in range(23):
@@ -74,7 +74,7 @@ print("parsing done")
 # In[3]:
 
 
-testfname = open(sys.argv[4], 'r')
+testfname = open(sys.argv[3], 'r')
 xarrtestori = []
 yarrtest = []
 for i in range(23):
@@ -422,355 +422,18 @@ for i in range(numtrain):
     else:
         tempysplit[1]= tempysplit[1]+1
 root = Node(tempysplit,temptarget)
-grownode(root)
-print("done")
-if(debug==1): printtree(root)
-
-
-# In[10]:
-
-
-debug=0
-# print(len(root.childlist))
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numtrain):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtrain[j][i])
-    ypred = test(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtrain[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-
-
-# In[11]:
-
-
-print((numright*1.0)/(1.0*numtrain))
-
-
-# In[12]:
-
-
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numvali):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrvali[j][i])
-    ypred = test(temp,root)
-#     print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrvali[i]):
-#         print("right")
-        numright+=1
-    else:
-#         print("wrong")
-        numwrong+=1
-# print("hell")
-
-
-# In[13]:
-
-
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numvali))
-
-
-# In[14]:
-
-
-# test([1]*23,root)
-debug=0
-numright=0
-numwrong=0
-for i in range(numtest):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtest[j][i])
-    ypred = test(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtest[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-
-
-# In[15]:
-
-
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numtest))
-
-
-# In[16]:
-
-
-debug=0
-def testwhole(thisnode,targetindex, xarrwhole, yarrwhole):
-#    print("target index is")
-  #  print(targetindex)
-#    print(len(xarrwhole))
-#    print(len(yarrwhole))
-#    print("childlist length "+str(len(thisnode.childlist)))
-    numright=0
-    numwrong=0
-    for i in targetindex:
-        templist=[]
-        for j in range(23):
-            templist.append(xarrwhole[j][i])
-        predy=test(templist,thisnode)
-        if(predy==yarrwhole[i]):
-            numright+=1
-        else:
-            numwrong+=1
-    if(numright+numwrong==0):
-        acc= 0.0
-    else:
-        acc = ((1.0*numright)/(1.0*(numright+numwrong)))
-#    print("accuracy ----------------------------" +str(acc))
-    return acc
-numprune=0
-def grownodeprune(thisnode, targetvaliindex, ylistvali):
- #   print("grownodeprune")
-    if(thisnode.ylist[0]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=1
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(thisnode.ylist[1]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(allfeatureexplored(thisnode)==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        if(tempnode.ylist[1]>tempnode.ylist[0]):
-            tempnode.yleaf=1
-        else:
-            tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    else:
-        bestattr=choosebestattr(thisnode)
-#        if(debug==1): print("best attr is "+str(bestattr))
-        tempnumchild = xnumchildhelper[bestattr]
-        tempchildarr=[]
-        for i in range(tempnumchild):
-            temptarget=[]
-            tempylist=[0,0]
-            for j in thisnode.target:
-                if(xarrtrain[bestattr][j]==i):
-                    temptarget.append(j)
-                    if(yarrtrain[j]==0):
-                        tempylist[0]= tempylist[0]+1
-                    else:
-                        tempylist[1]= tempylist[1]+1
-            temptargetvali=[]
-            tempylistvali=[0,0]
-#             print(targetvaliindex)
-            for j in targetvaliindex:
-                if(xarrvali[bestattr][j]==i):
-                    temptargetvali.append(j)
-                    if(yarrvali[j]==0):
-                        tempylistvali[0]= tempylistvali[0]+1
-                    else:
-                        tempylistvali[1]= tempylistvali[1]+1
-            tempnode = Node(tempylist,temptarget)
-            tempnode.setxsplit(thisnode.xsplit)
-            tempnode.updatexsplit(bestattr,i)
-#             print("bestarr is "+str(bestattr))
-#             print("i is "+str(i))
-#             print(tempnode.xsplit)
-            tempaccuracyprune=0.0
-     #       print(tempylist)
-     #       print(tempylistvali)
-            if((tempylist[0]+tempylist[1])==0):
-                grownodeprune(tempnode, temptargetvali, tempylistvali)
-                tempchildarr.append(tempnode)
-                continue
-            if(tempylist[1]>tempylist[0]):
-                if((tempylistvali[0]+tempylistvali[1])==0):
-                    tempaccuracyprune = 0.0
-                else:
-                    tempaccuracyprune = (1.0*(tempylistvali[1]))/(1.0*(tempylistvali[0]+tempylistvali[1]))
-            else:
-                if((tempylistvali[0]+tempylistvali[1])==0):
-                    tempaccuracyprune = 0.0
-                else:       
-                    tempaccuracyprune = (1.0*(tempylistvali[0]))/(1.0*(tempylistvali[0]+tempylistvali[1]))
-            
-            grownodeprune(tempnode, temptargetvali, tempylistvali)
-  #          print(thisnode)
-            tempaccuracynotprune = testwhole(tempnode, temptargetvali, xarrvali, yarrvali)
-            if(tempaccuracyprune>tempaccuracynotprune):
-#             if(0==1):
- #               print("----------------PRUNED-----------------")
-                global numprune
-                numprune+=1
-                tempnode2 = Node(thisnode.ylist,thisnode.target)
-                tempnode2.setchild([])
-                tempnode2.setxsplit(thisnode.xsplit)
-                
-                if(tempylist[1]>tempylist[0]):
-                    tempnode2.yleaf=1
-                else:
-                    tempnode2.yleaf=0  
-                temnodechildddlist =[]
-                temnodechildddlist.append(tempnode2)
-                tempnode.setchild(temnodechildddlist)
-                tempchildarr.append(tempnode)
-            else:
-                tempchildarr.append(tempnode)
-#         print("before setting child")
-#         printtree(thisnode)
-        thisnode.setspliton(bestattr)
-        thisnode.setchild(tempchildarr)
-#         print("after setting child")
-#         printtree(thisnode)
-        return
-tempysplit=[0,0]
-temptarget=[]
-for i in range(numtrain):
-    temptarget.append(i)
-    if(yarrtrain[i]==0):
-        tempysplit[0]= tempysplit[0]+1
-    else:
-        tempysplit[1]= tempysplit[1]+1
-root = Node(tempysplit,temptarget)
-tempysplitvali=[0,0]
-temptargetvali=[]
-for i in range(numvali):
-    temptargetvali.append(i)
-    if(yarrvali[i]==0):
-        tempysplitvali[0]= tempysplitvali[0]+1
-    else:
-        tempysplitvali[1]= tempysplitvali[1]+1
-grownodeprune(root,temptargetvali,tempysplitvali)
-print("done")
-numnode=0
-#printtree(root)
-print(numprune)
-print(numnode)
-
-
-# In[17]:
-
-
-debug=0
-# print(len(root.childlist))
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numtrain):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtrain[j][i])
-    ypred = test(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtrain[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-
-
-# In[18]:
-
-
-# print("hell")
-print((numright*1.0)/(1.0*numtrain))
-
-
-# In[19]:
-
-
-numright=0
-numwrong=0
-for i in range(numvali):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrvali[j][i])
-    ypred = test(temp,root)
-#     print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrvali[i]):
-#         print("right")
-        numright+=1
-    else:
-#         print("wrong")
-        numwrong+=1
-# print("hell")
-
-
-# In[20]:
 
 
 
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numvali))
 
 
-# In[21]:
 
 
-debug=0
-numright=0
-numwrong=0
-for i in range(numtest):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtest[j][i])
-    ypred = test(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtest[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
 
 
-# In[22]:
 
 
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numtest))
+
 
 
 # In[23]:
@@ -981,10 +644,6 @@ for i in range(numtrain):
         tempysplit[0]= tempysplit[0]+1
     else:
         tempysplit[1]= tempysplit[1]+1
-root = Node(tempysplit,temptarget)
-grownodec(root, [0]*23)
-print("done")
-if(debug==1): printtree(root)
 
 
 # In[25]:
@@ -1009,29 +668,7 @@ def testc(arr,thisnode):
 # In[26]:
 
 
-debug=0
-# print(len(root.childlist))
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numtrain):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtrainc[j][i])
-    ypred = testc(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtrain[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-    
-print((numright*1.0)/(1.0*numtrain))
 
-
-# In[27]:
 
 
 xarrvalic=[]
@@ -1059,30 +696,7 @@ for i in range(23):
 
 
 # test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numvali):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrvalic[j][i])
-    ypred = testc(temp,root)
-#     print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrvali[i]):
-#         print("right")
-        numright+=1
-    else:
-#         print("wrong")
-        numwrong+=1
-# print("hell")
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numvali))
 
-
-# In[29]:
 
 
 xarrtestc=[]
@@ -1107,33 +721,7 @@ for i in range(23):
             
 
 
-# In[30]:
 
-
-# test([1]*23,root)
-debug=0
-numright=0
-numwrong=0
-for i in range(numtest):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtestc[j][i])
-    ypred = testc(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrtest[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-        
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numtest))
 
 
 # In[31]:
@@ -1141,7 +729,7 @@ print((numright*1.0)/(1.0*numtest))
 
 import numpy as np
 from sklearn import tree
-X= np.array(xarrtrain).reshape((23,numtrain))
+X= np.array(xarrtrainc).reshape((23,numtrain))
 X= np.transpose(X)
 temp=[]
 for i in range(23):
@@ -1173,7 +761,7 @@ print((1.0*numright)/(1.0*numtrain))
 # In[33]:
 
 
-X= np.array(xarrvali).reshape((23,numvali))
+X= np.array(xarrvalic).reshape((23,numvali))
 X= np.transpose(X)
 ans = clf1.predict(X.tolist())
 numright=0
@@ -1189,195 +777,9 @@ print((1.0*numright)/(1.0*numvali))
 # In[34]:
 
 
-X= np.array(xarrtest).reshape((23,numtest))
+X= np.array(xarrtestc).reshape((23,numtest))
 X= np.transpose(X)
 ans = clf1.predict(X.tolist())
-numright=0
-numwrong=0
-for i in range(numtest):
-    if(ans[i]==yarrtest[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numtest))
-
-
-# In[35]:
-
-
-# one hot encoding
-count=0
-onehotxtrain = []
-for i in range(23):
-    if(xidentifier[i]!=2):
-        onehotxtrain.append([])
-        for j in range(numtrain):
-            onehotxtrain[count].append(xarrtrain[i][j])
-        count+=1
-    else:
-        tempcat = xnumchildhelper[i]
-        for j in range(tempcat):
-            onehotxtrain.append([])
-        for j in range(numtrain):
-            tempval = xarrtrain[i][j]
-            for k in range(tempcat):
-                if(k==tempval):
-                    onehotxtrain[count+k].append(1)
-                else:
-                    onehotxtrain[count+k].append(0)
-        count += tempcat
-templen=len(onehotxtrain)
-onehotxtrain = np.array(onehotxtrain).reshape((templen,numtrain))
-onehotxtrain = np.transpose(onehotxtrain)
-
-
-# In[36]:
-
-
-# one hot encoding
-count=0
-onehotxvali = []
-for i in range(23):
-    if(xidentifier[i]!=2):
-        onehotxvali.append([])
-        for j in range(numvali):
-            onehotxvali[count].append(xarrvali[i][j])
-        count+=1
-    else:
-        tempcat = xnumchildhelper[i]
-        for j in range(tempcat):
-            onehotxvali.append([])
-        for j in range(numvali):
-            tempval = xarrvali[i][j]
-            for k in range(tempcat):
-                if(k==tempval):
-                    onehotxvali[count+k].append(1)
-                else:
-                    onehotxvali[count+k].append(0)
-        count += tempcat
-templen=len(onehotxvali)
-onehotxvali = np.array(onehotxvali).reshape((templen,numvali))
-onehotxvali = np.transpose(onehotxvali)
-
-
-# In[37]:
-
-
-# one hot encoding
-count=0
-onehotxtest = []
-for i in range(23):
-    if(xidentifier[i]!=2):
-        onehotxtest.append([])
-        for j in range(numtest):
-            onehotxtest[count].append(xarrtest[i][j])
-        count+=1
-    else:
-        tempcat = xnumchildhelper[i]
-        for j in range(tempcat):
-            onehotxtest.append([])
-        for j in range(numtest):
-            tempval = xarrtest[i][j]
-            for k in range(tempcat):
-                if(k==tempval):
-                    onehotxtest[count+k].append(1)
-                else:
-                    onehotxtest[count+k].append(0)
-        count += tempcat
-templen=len(onehotxtest)
-onehotxtest = np.array(onehotxtest).reshape((templen,numtest))
-onehotxtest = np.transpose(onehotxtest)
-
-
-# In[38]:
-
-
-clf1 = tree.DecisionTreeClassifier()
-clf1 = clf1.fit(onehotxtrain.tolist(), yarrtrain)
-
-
-# In[39]:
-
-
-ans = clf1.predict(onehotxtrain.tolist())
-numright=0
-numwrong=0
-for i in range(numtrain):
-    if(ans[i]==yarrtrain[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numtrain))
-
-
-# In[40]:
-
-
-ans = clf1.predict(onehotxvali.tolist())
-numright=0
-numwrong=0
-for i in range(numvali):
-    if(ans[i]==yarrvali[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numvali))
-
-
-# In[41]:
-
-
-ans = clf1.predict(onehotxtest.tolist())
-numright=0
-numwrong=0
-for i in range(numtest):
-    if(ans[i]==yarrtest[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numtest))
-
-
-# In[42]:
-
-
-from sklearn.ensemble import RandomForestClassifier
-clf = RandomForestClassifier(n_estimators=10)
-clf = clf.fit(onehotxtrain.tolist(), yarrtrain)
-
-
-# In[43]:
-
-
-ans = clf1.predict(onehotxtrain.tolist())
-numright=0
-numwrong=0
-for i in range(numtrain):
-    if(ans[i]==yarrtrain[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numtrain))
-
-
-# In[44]:
-
-
-ans = clf1.predict(onehotxvali.tolist())
-numright=0
-numwrong=0
-for i in range(numvali):
-    if(ans[i]==yarrvali[i]):
-        numright+=1
-    else:
-        numwrong+=1
-print((1.0*numright)/(1.0*numvali))
-
-
-# In[45]:
-
-
-ans = clf1.predict(onehotxtest.tolist())
 numright=0
 numwrong=0
 for i in range(numtest):

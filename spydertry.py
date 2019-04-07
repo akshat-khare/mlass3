@@ -1,726 +1,329 @@
-import sys
-trainfname = open('ass3data/credit-cards.train.csv', 'r')
-xarrtrainori = []
-yarrtrain = []
-xidentifier= [3,1,2,2,3,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3]
-medianarr = [0.0]*23
-xnumchildhelper=[]
-for i in range(23):
-    if(xidentifier[i]!=2):
-        xnumchildhelper.append(2)
-    else:
-        if(i==2):
-            xnumchildhelper.append(7)
-        elif(i==3):
-            xnumchildhelper.append(4)
-        elif(i>=5 and i<=10):
-            xnumchildhelper.append(12)
-print(xnumchildhelper)
-# 1 means binary, 2 means categorical, 3 means continous
-for i in range(23):
-    xarrtrainori.append([]);
-numtrain=0
-for line in trainfname:
-    numtrain+=1
-    if(numtrain<=2):
-        continue
-    linearr= line.split(',')
-#     print(linearr)
-    for i in range(23):
-        xarrtrainori[i].append(int(linearr[i+1]))
-    yarrtrain.append(int(linearr[24]))
-#     if(numtrain>600):
-#         break
-numtrain = numtrain-2
-print("parsing done")
-# print(xarrtrainori)
-# print("y is")
-# print(yarrtrain)
-
-valifname = open('ass3data/credit-cards.val.csv', 'r')
-xarrvaliori = []
-yarrvali = []
-for i in range(23):
-    xarrvaliori.append([]);
-numvali=0
-for line in valifname:
-    numvali+=1
-    if(numvali<=2):
-        continue
-    linearr= line.split(',')
-#     print(linearr)
-    for i in range(23):
-        xarrvaliori[i].append(int(linearr[i+1]))
-    yarrvali.append(int(linearr[24]))
-#     if(numtrain>600):
-#         break
-numvali = numvali-2
-print("parsing done")
-# print(xarrtrainori)
-# print("y is")
-# print(yarrtrain)
-
-
-testfname = open('ass3data/credit-cards.test.csv', 'r')
-xarrtestori = []
-yarrtest = []
-for i in range(23):
-    xarrtestori.append([]);
-numtest=0
-for line in testfname:
-    numtest+=1
-    if(numtest<=2):
-        continue
-    linearr= line.split(',')
-#     print(linearr)
-    for i in range(23):
-        xarrtestori[i].append(int(linearr[i+1]))
-    yarrtest.append(int(linearr[24]))
-#     if(numtrain>600):
-#         break
-numtest = numtest-2
-print("parsing done")
-# print(xarrtrainori)
-# print("y is")
-# print(yarrtrain)
-
-
-xarrtrain=[]
-for i in range(23):
-    xarrtrain.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numtrain):
-            xarrtrain[i].append(xarrtrainori[i][j]+2)
-    elif(i==1):
-        for j in range(numtrain):
-            xarrtrain[i].append(xarrtrainori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numtrain):
-            xarrtrain[i].append(xarrtrainori[i][j])
-    else:
-        templist=[]
-        for j in range(numtrain):
-            templist.append(xarrtrainori[i][j])
-#         templist = xarrtrainori[i]
-        templist.sort()
-#         print(templist)
-        median=0.0
-        if(numtrain%2==1):
-            median=templist[int(numtrain/2)]
-        else:
-            median = (0.5*(templist[int(numtrain/2)] + templist[int(numtrain/2)-1]))
-        medianarr[i] = median
-        print("median for "+str(i) + " is "+ str(median))
-        for j in range(numtrain):
-            if(xarrtrainori[i][j]>median):
-                xarrtrain[i].append(1)
-            else:
-                xarrtrain[i].append(0)
-# print(xarrtrain)
-# print(yarrtrain)
-                
-                
-xarrvali=[]
-for i in range(23):
-    xarrvali.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numvali):
-            xarrvali[i].append(xarrvaliori[i][j]+2)
-    elif(i==1):
-        for j in range(numvali):
-            xarrvali[i].append(xarrvaliori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numvali):
-            xarrvali[i].append(xarrvaliori[i][j])
-    else:
-#         templist=[]
-#         for j in range(numvali):
-#             templist.append(xarrvaliori[i][j])
-# #         templist = xarrvaliori[i]
-#         templist.sort()
-#         print(templist)
-        median=medianarr[i]
-#         if(numvali%2==1):
-#             median=templist[int(numvali/2)]
-#         else:
-#             median = (0.5*(templist[int(numvali/2)] + templist[int(numvali/2)+1]))
-        print("median for "+str(i) + " is "+ str(median))
-        for j in range(numvali):
-            if(xarrvaliori[i][j]>median):
-                xarrvali[i].append(1)
-            else:
-                xarrvali[i].append(0)
-# print(xarrvali)
-# print(yarrvali)
-                
 import numpy as np
-xarrvalinp = np.array(xarrvali).reshape((23,numvali))
-xarrvalinp = np.transpose(xarrvalinp)
-
-
-xarrtest=[]
-for i in range(23):
-    xarrtest.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numtest):
-            xarrtest[i].append(xarrtestori[i][j]+2)
-    elif(i==1):
-        for j in range(numtest):
-            xarrtest[i].append(xarrtestori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numtest):
-            xarrtest[i].append(xarrtestori[i][j])
-    else:
-#         templist=[]
-#         for j in range(numtest):
-#             templist.append(xarrtestori[i][j])
-# #         templist = xarrtestori[i]
-#         templist.sort()
-#         print(templist)
-        median=medianarr[i]
-#         if(numtest%2==1):
-#             median=templist[int(numtest/2)]
-#         else:
-#             median = (0.5*(templist[int(numtest/2)] + templist[int(numtest/2)+1]))
-        print("median for "+str(i) + " is "+ str(median))
-        for j in range(numtest):
-            if(xarrtestori[i][j]>median):
-                xarrtest[i].append(1)
-            else:
-                xarrtest[i].append(0)
-# print(xarrtest)
-# print(yarrtest)
-
-
-debug=0
-# 1 is true 0 is false
 import math
-def printtree(thisnode):
-    print(thisnode.xsplit)
-    print("|")
-    if(thisnode.childlist==None):
-        print("None is child")
-        return
-    if(len(thisnode.childlist)==0):
-        print("Leaf "+str(thisnode.yleaf))
-    for i in thisnode.childlist:
-        printtree(i)
-        print("--")
-
+import random
+import sys
+#greatest priority print
+debug0=1
+#greater priority print
+debug1=0
+#less priority print
+debug2=0
 class Node:
-    def __init__(self,ylist,target):
-        self.ylist=[]
-        for i in range(len(ylist)):
-            (self.ylist).append(ylist[i])
-        self.childlist=None
-        self.target=[]
-        for i in range(len(target)):
-            (self.target).append(target[i])
-        self.xsplit=[]
-        self.yleaf=None
-        self.spliton=None
-        self.splitvalue=None
-        for i in range(23):
-            (self.xsplit).append(-1)
-    def setchild(self,childlist):
-        self.childlist=[]
-        for i in range(len(childlist)):
-            (self.childlist).append(childlist[i])
-#             print("appending")
-#             printtree(self)
-#         self.childlist=childlist
-    def updatexsplit(self,index,val):
-        (self.xsplit)[index]=val
-    def setxsplit(self,xsplit):
-        for i in range(len(xsplit)):
-            (self.xsplit)[i]=xsplit[i]
-    def setyleaf(self,val):
-        self.yleaf=val
-    def setspliton(self,val):
-        self.spliton=val
-    def setsplitval(self,val):
-        self.splitvalue= val
-def entropy(arr):
-    temp=0.0
-    sumarr=(arr[0]+arr[1])*1.0
-    if((arr[0]+arr[1])==0):
-        if(debug==1): print("Zero Zero case in entropy----------")
-        return math.log(2)/math.log(math.exp(1))
-    elif(arr[0]==0 or arr[1]==0):
-        if(debug==1): print("Zero one or one zero entropy case------")
-        return 0.0
-    for i in range(2):
-        temp += -((1.0*arr[i])/sumarr)*((math.log((1.0*arr[i])/sumarr))/math.log(math.exp(1)))
-    return temp
-  
-def test(arr,thisnode):
-    if(len(thisnode.childlist)==1):
-        return thisnode.childlist[0].yleaf
-    else:
-        temp = thisnode.spliton
-        return test(arr, thisnode.childlist[arr[temp]])
-
-
-def choosebestattr(thisnode):
-    itarr =[]
-    for i in range(23):
-        if((thisnode.xsplit[i])>=0):
-            itarr.append(float('-inf'))
-            continue
-        tempinf=[]
-        numtarget=len(thisnode.target)
-        yattarr=[]
-        numattr=[]
-        for j in range(xnumchildhelper[i]):
-            yattarr.append([0,0])
-            numattr.append(0)
-        for j in thisnode.target:
-            tempk = xarrtrain[i][j]
-            numattr[tempk]=numattr[tempk]+1
-            if(yarrtrain[j]==0):
-                yattarr[tempk][0]=yattarr[tempk][0]+1
-            else:
-                yattarr[tempk][1]=yattarr[tempk][1]+1
-        for j in range(xnumchildhelper[i]):
-            temp = (   (1.0*(numattr[j])) / (1.0*numtarget) )   *   (entropy(yattarr[j])    ) 
-            tempinf.append(temp)
-        temp=0.0
-        for j in range(xnumchildhelper[i]):
-            temp+=tempinf[j]
-        if(debug==1): print("hb is")
-        if(debug==1): print(temp)
-        temp = entropy(thisnode.ylist)-temp
-#         print(entropy(thisnode.ylist))
-        itarr.append(temp)
-    tempval=itarr[0]
-    maxone=0
-    for i in range(23):
-        if(itarr[22-i]>tempval):
-            tempval=itarr[22-i]
-            maxone=22-i
-    if(debug==1): print(itarr)
-    if(debug==1): print("max inf gain is "+str(tempval))
-    return maxone
-     
-def allfeatureexplored(thisnode):
-    for i in range(23):
-        if(thisnode.xsplit[i]<0):
-            #False
-            return 1
-    #True
-    return 0
-                    
-def grownode(thisnode):
-    if(thisnode.ylist[0]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=1
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(thisnode.ylist[1]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(allfeatureexplored(thisnode)==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        if(tempnode.ylist[1]>tempnode.ylist[0]):
-            tempnode.yleaf=1
-        else:
-            tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    else:
-        bestattr=choosebestattr(thisnode)
-        if(debug==1): print("best attr is "+str(bestattr))
-        tempnumchild = xnumchildhelper[bestattr]
-        tempchildarr=[]
-        for i in range(tempnumchild):
-            temptarget=[]
-            tempylist=[0,0]
-            for j in thisnode.target:
-                if(xarrtrain[bestattr][j]==i):
-                    temptarget.append(j)
-                    if(yarrtrain[j]==0):
-                        tempylist[0]= tempylist[0]+1
-                    else:
-                        tempylist[1]= tempylist[1]+1
-            tempnode = Node(tempylist,temptarget)
-            tempnode.setxsplit(thisnode.xsplit)
-            tempnode.updatexsplit(bestattr,i)
-#             print("bestarr is "+str(bestattr))
-#             print("i is "+str(i))
-#             print(tempnode.xsplit)
-#             print(i)
-#             print(tempylist)
-            grownode(tempnode)
-            tempchildarr.append(tempnode)
-#         print("before setting child")
-#         printtree(thisnode)
-        thisnode.setspliton(bestattr)
-        thisnode.setchild(tempchildarr)
-#         print("after setting child")
-#         printtree(thisnode)
-        return
+    def __init__(self,numtheta):
+        self.theta=[0.0]*numtheta
+        for i in range(numtheta):
+            self.theta[i]=random.random()
+        self.downstream=None
+        self.upstream=None
+        self.output=None
+        self.deljthetabydelthetaunit = [0.0]*numtheta
+        self.deljthetabydelnet = None
+def loadtheta(network,theta ):
+    for i in range(len(network)):
+        for j in range(len(network[i])):
+            for k in range(len(network[i][j].theta)):
+                network[i][j].theta[k] = theta[i][j][k]
+    return network
+def sigmoid(x):
+    return (1.0/(1.0+math.exp(-x)))
+# def forwardpass(features, network):
+#     for i in range(len(network)):
+#         for j in range(len(network[i])):
+#             tempnode = network[i][j]
+#             temp=0.0
+#             if(i==0):
+#                 #parse from input
+#                 for k in range(len(tempnode.theta)):
+#                     if(k==len(tempnode.theta)-1):
+#                         temp += tempnode.theta[k] * 1.0
+#                     else:
+#                         temp += tempnode.theta[k] * features[k]
                 
-tempysplit=[0,0]
-temptarget=[]
-for i in range(numtrain):
-    temptarget.append(i)
-    if(yarrtrain[i]==0):
-        tempysplit[0]= tempysplit[0]+1
-    else:
-        tempysplit[1]= tempysplit[1]+1
-root = Node(tempysplit,temptarget)
-#grownode(root)
-print("done")
-if(debug==1): printtree(root)
-
-
-xarrtrainc=[]
-for i in range(23):
-    xarrtrainc.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numtrain):
-            xarrtrainc[i].append(xarrtrainori[i][j]+2)
-    elif(i==1):
-        for j in range(numtrain):
-            xarrtrainc[i].append(xarrtrainori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numtrain):
-            xarrtrainc[i].append(xarrtrainori[i][j])
-    else:
-        for j in range(numtrain):
-            xarrtrainc[i].append(xarrtrainori[i][j])
+#             else:
+#                 #parse from last layer
+#                 prevlayer = network[i-1]
+#                 for k in range(len(tempnode.theta)):
+#                     if(k==len(tempnode.theta)-1):
+#                         temp += tempnode.theta[k] * 1.0
+#                     else:
+#                         temp += tempnode.theta[k] * prevlayer[k].output
+#             tempnode.output = sigmoid(temp)
+#     lastlayer = network[len(network)-1]
+#     templist=[]
+#     for i in range(len(lastlayer)):
+#         templist.append(lastlayer[i].output)
+#     return templist
+def forwardpass(features, network, ojnparr, thetanparr):
+    for i in range(len(network)):
+        if(i==0):
+            tempinp = np.array(features).reshape(len(features),1)
+            tempinp = np.append(tempinp, [1.0]).reshape(len(features)+1,1)
+            temp = np.matmul(thetanparr[i],tempinp)
+            temp = -1.0*temp
+            temp = np.exp(temp)
+            temp = 1.0+temp
+            temp = 1.0 / temp
+            ojnparr[i]= np.copy(temp)
+        else:
+            temp = np.append(ojnparr[i-1],[1.0]).reshape(len(ojnparr[i-1])+1,1)
+            temp = np.matmul(thetanparr[i],temp)
+            temp = -1.0*temp
+            temp = np.exp(temp)
+            temp = 1.0+temp
+            temp = 1.0 / temp
+            ojnparr[i]= np.copy(temp)
+    return ojnparr
+def findcost(output, correctoutput):
+    temp = 0.0
+    for i in range(len(output)):
+        temp += 0.5 * ((output[i]-correctoutput[i])**2)
+    temp = 0.5* (np.power(output-correctoutput,2))    
+    return np.sum(temp)
+def findtotalcostarr(inparr,outarr,network,ojnparr,thetanparr):
+    costarr=[]
+    for i in range(len(inparr)):
+        tempout = np.array(outarr[i]).reshape(len(outarr[i]),1)
+        tempforwardpass= forwardpass(inparr[i],network, ojnparr, thetanparr)
+        if(debug1==1): print("tempforwardpass is")
+        if(debug1==1): print(tempforwardpass)
+        tempcost = findcost(tempforwardpass[len(network)-1],tempout)
+        costarr.append(tempcost)
+    avgcost=0.0
+    for i in range(len(costarr)):
+        avgcost += costarr[i]
+    avgcost = avgcost/(len(costarr))
+    return costarr, avgcost
+def printdeljtheta(network):
+    print("deljtheta is")
+    templist=[]
+    for i in range(len(network)):
+        templist.append([])
+        for j in range(len(network[i])):
+            templist[i].append([])
+            for k in range(len(network[i][j].theta)):
+                templist[i][j].append(network[i][j].deljthetabydelthetaunit[k])
+    print(templist)
+    return
+def neuralnet(inparr, outarr, hiddeninfo,learningrate, batchsize,costthres,maxepochallowed,sampletheta):
+    numtrain = len(inparr)
+    diminput= len(inparr[0])
+    dimoutput = len(outarr[0])
+    network=[]
+    for i in range(len(hiddeninfo)):
+        network.append([])
+    network.append([])
+    for i in range(len(hiddeninfo)):
+        #i is layer iterator
+        for j in range(hiddeninfo[i]):
+            #j is sublayer num unit iterator
+            if(i==0):
+                tempnode = Node(diminput+1)
+                network[i].append(tempnode)
+            else:
+                tempnode = Node(hiddeninfo[i-1]+1)
+                network[i].append(tempnode)
+            
+    #add output layer
+    for i in range(dimoutput):
+        tempnode = Node(hiddeninfo[len(hiddeninfo)-1] + 1)
+        network[len(network)-1].append(tempnode)
+    #load theta for testing
+#     network = loadtheta(network, sampletheta)
+    #necessary forwardpass
+#     tempforwardpass = forwardpass(inparr[0],network)
+#     print(tempforwardpass)
+#     #lets see cost
+#     print("cost = "+str(findcost(tempforwardpass,outarr[0])))
+    
+    #time for backprop
+#     deljthetabydelthetamat=[]
+#     for i in range(len(network)):
+#         deljthetabydelthetamat.append([])
+#         for j in range(len(network[i])):
+#             deljthetabydelthetamat[i].append([])
+#             for k in range(len(network[i][j].theta)):
+#                 deljthetabydelthetamat[i][j].append(0.0)
+    deljthetabydelthetamatnparr = []
+    deljthetabydelthetanparr = []
+    deljthetabydelnetnparr = []
+    thetanparr = []
+    ojnparr = []
+    for i in range(len(network)):
+        tempmat = np.zeros((len(network[i]), len(network[i][0].theta)))
+        deljthetabydelthetamatnparr.append(tempmat)
+        tempmat1 = np.zeros((len(network[i]), len(network[i][0].theta)))
+        deljthetabydelthetanparr.append(tempmat1)
+        tempmat2 = np.zeros((len(network[i]),1))
+        deljthetabydelnetnparr.append(tempmat2)
+        tempmat3 = np.zeros((len(network),1))
+        ojnparr.append(tempmat3)
+        tempmat4 = np.zeros((len(network[i]), len(network[i][0].theta)))
+        for j in range(len(network[i])):
+            for k in range(len(network[i][j].theta)):
+                tempmat4[j][k]=network[i][j].theta[k]
+        thetanparr.append(tempmat4)
         
-# print(xarrtrain)
-# print(yarrtrain)
+#     if(debug2==1): print("simulated deljtheata")
+#     if(debug2==1): print(deljthetabydelthetamat)
+    if(debug2==1): print("real deljtheta")
+#     if(debug2==1): printdeljtheta(network)
+    if(debug2==1): print(deljthetabydelthetamatnparr)
+    subbatchiter=0
+    batchcount=0
+    numwholedatapass=0
+    numiter=0
+    costarr,oldavgcost = findtotalcostarr(inparr,outarr,network, ojnparr, thetanparr)
+    shufflehelper = []
+    for i in range(len(inparr)):
+        shufflehelper.append(i)
+    while(0==0):
+        numiter+=1
+        if(debug1==1): print("numiter is")
+        if(debug1==1): print(numiter)
+        if(debug1==1): print("numwholedata pass is")
+        if(debug1==1): print(numwholedatapass)
+        ioindex = batchsize*batchcount+subbatchiter
+        if(debug1==1): print("ioindex is "+str(ioindex))
+        tempforwardpass = forwardpass(inparr[shufflehelper[ioindex]],network,ojnparr,thetanparr)
+        if(debug1==1): print("real index is "+str(shufflehelper[ioindex]))
+#         for i in range(len(network)-1,-1,-1):
+            #lets calculate deljtheta by del netj
+#             for j in range(len(network[i])):
+#                 tempnode = network[i][j]
+#                 if(i==len(network)-1):
+#                     tempnode.deljthetabydelnet = -1.0*(outarr[shufflehelper[ioindex]][j]-tempnode.output)*(tempnode.output)*(1.0-tempnode.output)
+#                 else:
+#                     temp=0.0
+#                     nextlayer = network[i+1]
+#                     for k in range(len(nextlayer)):
+#                         temp += nextlayer[k].deljthetabydelnet * nextlayer[k].theta[j]
+#                     tempnode.deljthetabydelnet = (tempnode.output) * (1.0- tempnode.output) * temp
+#                 if(i==0):
+#                     #ok is input
+#                     for k in range(len(tempnode.theta)):
+#                         if(k==len(tempnode.theta)-1):
+#                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * 1.0
+#                         else:
+#                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * inparr[shufflehelper[ioindex]][k]
+#                 else:
+#                     prevlayer = network[i-1]
+#                     for k in range(len(tempnode.theta)):
+#                         if(k==len(tempnode.theta)-1):
+#                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * 1.0
+#                         else:
+#                             tempnode.deljthetabydelthetaunit[k] = tempnode.deljthetabydelnet * prevlayer[k].output
+        for i in range(len(network)-1,-1,-1):
+            #lets calculate deljtheta by del netj
+#            print("iterating on layer "+str(i))
+ #           print("theta is ")
+  #          print(thetanparr[i])
+   #         print("deljthetabydelnp")
+    #        print(deljthetabydelnetnparr[i])
+            if(i==len(network)-1):
+                tempnp = np.array(outarr[shufflehelper[ioindex]]).reshape(len(outarr[shufflehelper[ioindex]]),1) - ojnparr[i]
+                tempnp = np.multiply(tempnp, ojnparr[i])
+                tempnp = np.multiply(tempnp, 1 - ojnparr[i])
+                tempnp = -1.0 * tempnp
+                deljthetabydelnetnparr[i] = np.copy(tempnp)
+            else:
+                tempnp = np.matmul(np.transpose(deljthetabydelnetnparr[i+1]),thetanparr[i+1])
+                tempnp = np.transpose(tempnp)
+                #print("tempnp is")
+                #print(tempnp)
+                tempnp = np.delete(tempnp, len(tempnp)-1,0)
+                #print("tempnp is")
+                #print(tempnp)
+                #print("ojnparr i is")
+                #print(ojnparr[i])
+                tempnp2 = 1.0 - ojnparr[i]
+                #print("tempnp2 is ")
+                #print(tempnp2)
+                tempnp2 = np.multiply(ojnparr[i],tempnp2)
+                #print("tempnp2 is ")
+                #print(tempnp2)
+                tempnp = np.multiply(tempnp2,tempnp)
+                deljthetabydelnetnparr[i] = np.copy(tempnp)
+            #lets calculate deljtheta by del theta
+            if(i==0):
+                tempnp = np.append(inparr[shufflehelper[ioindex]],[1.0]).reshape(len(inparr[shufflehelper[ioindex]])+1,1)
+                deljthetabydelthetanparr[i]=np.copy(np.matmul(deljthetabydelnetnparr[i],np.transpose(tempnp)))
+            else:
+                tempnp = np.append(ojnparr[i-1],[1.0]).reshape(len(ojnparr[i-1])+1,1)
+                deljthetabydelthetanparr[i]=np.copy(np.matmul(deljthetabydelnetnparr[i],np.transpose(tempnp)))
+        subbatchiter+=1
+#         for i in range(len(network)):
+#                 for j in range(len(network[i])):
+#                     for k in range(len(network[i][j].theta)):
+#                         deljthetabydelthetamat[i][j][k] =deljthetabydelthetamat[i][j][k] + network[i][j].deljthetabydelthetaunit[k]
+        for i in range(len(network)):
+            deljthetabydelthetamatnparr[i] = deljthetabydelthetamatnparr[i]+ deljthetabydelthetanparr[i]
+        if(debug2==1): print("simulated deljtheata mat")
+        if(debug2==1): print(deljthetabydelthetamatnparr)
+        if(debug2==1): print("real deljtheta")
+        if(debug2==1): print(deljthetabydelthetamatnparr)
+        if(subbatchiter==batchsize):
+            if(debug1==1): print("batch over")
+#             for i in range(len(network)):
+#                 for j in range(len(network[i])):
+#                     for k in range(len(network[i][j].theta)):
+#                         network[i][j].theta[k] = network[i][j].theta[k] - learningrate * deljthetabydelthetamat[i][j][k]/(1.0*batchsize)
+#                         deljthetabydelthetamat[i][j][k]=0.0
+            for i in range(len(network)):
+                thetanparr[i] = thetanparr[i] - (learningrate * deljthetabydelthetamatnparr[i])
+                deljthetabydelthetamatnparr[i] = np.zeros((len(network[i]), len(network[i][0].theta)))
+            #set deljthetabydel zero
+            
+            
+            
+            subbatchiter=0
+            batchcount+=1
+            if(len(inparr)==batchcount*batchsize):
+                if(debug0==1): print("whole dataset done")
 
-# part c
-debug=0
-medianarr=[0.0]*23
-maxsplitallowed=3
-def allfeatureexploredc(thisnode, numsplit):
-    for i in range(23):
-        if(xidentifier[i]!=3):
-            if(thisnode.xsplit[i]<0):
-                #False
-                return 1
-        else:
-            if(numsplit[i]<maxsplitallowed):
-                return 1
-    #True
-    return 0
-xnumchildhelperc=[]
-for i in range(23):
-    if(xidentifier[i]!=3):
-        xnumchildhelperc.append(xnumchildhelper[i])
-    else:
-        xnumchildhelperc.append(2)
-def choosebestattrc(thisnode,numsplit):
-    #print("---------------choose best attribute--------------")
-    itarr =[]
-    medianarr = [0.0]*23
-    for i in range(23):
-        if(xidentifier[i]!=3):
-            if((thisnode.xsplit[i])>=0):
-                itarr.append(float('-inf'))
-                continue
-        else:
-            #print(numsplit)
-            if(numsplit[i] >= maxsplitallowed):
-                itarr.append(float('-inf'))
-                continue 
-        tempinf=[]
-        numtarget=len(thisnode.target)
-        yattarr=[]
-        numattr=[]
-        tempmedian=0.0
-        if(xidentifier[i]==3):
-            templist =[]
-            for j in thisnode.target:
-                templist.append(xarrtrainc[i][j])
-            templist.sort()
-            #print(len(xarrtrainc[i]))
-            #print(len(templist))
-            #print(numtarget)
-  #          tempmedianindex = templist[int(numtarget/2)] 
-     #       print(tempmedianindex)
-            if(numtarget%2==1):
-                tempmedian=templist[int(numtarget/2)]
-            else:
-                tempmedian=0.5*(templist[int(numtarget/2)]+templist[int(numtarget/2) -1])
-            medianarr[i]=tempmedian
-        for j in range(xnumchildhelperc[i]):
-            yattarr.append([0,0])
-            numattr.append(0)
-        for j in thisnode.target:
-            if(xidentifier[i]==3):
-                if(xarrtrainc[i][j]>tempmedian):
-                    tempk=1
-                else:
-                    tempk=0
-            else:
-                tempk = xarrtrain[i][j]
-            numattr[tempk]=numattr[tempk]+1
-            if(yarrtrain[j]==0):
-                yattarr[tempk][0]=yattarr[tempk][0]+1
-            else:
-                yattarr[tempk][1]=yattarr[tempk][1]+1
-        for j in range(xnumchildhelperc[i]):
-            temp = (   (1.0*(numattr[j])) / (1.0*numtarget) )   *   (entropy(yattarr[j])    ) 
-            tempinf.append(temp)
-        temp=0.0
-        for j in range(xnumchildhelperc[i]):
-            temp+=tempinf[j]
-        if(debug==1): print("hb is")
-        if(debug==1): print(temp)
-        temp = entropy(thisnode.ylist)-temp
-#         print(entropy(thisnode.ylist))
-        itarr.append(temp)
-    tempval=itarr[0]
-    maxone=0
-    for i in range(23):
-        if(itarr[22-i]>tempval):
-            tempval=itarr[22-i]
-            maxone=22-i
-    if(debug==1): print(itarr)
-    if(debug==1): print("max inf gain is "+str(tempval))
-    return maxone, medianarr
+                if(debug1==1): print("shuffle the shufflehelper")
+                numwholedatapass+=1
+                if(debug0==1): print(numwholedatapass)
+                batchcount=0
+    #            if(batchsize!=1):
+     #              random.shuffle(shufflehelper)
 
-def grownodec(thisnode, numsplit):
-    if(thisnode.ylist[0]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=1
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(thisnode.ylist[1]==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    elif(allfeatureexplored(thisnode)==0):
-        tempnode = Node(thisnode.ylist,thisnode.target)
-        tempnode.setchild([])
-        if(tempnode.ylist[1]>tempnode.ylist[0]):
-            tempnode.yleaf=1
-        else:
-            tempnode.yleaf=0
-        tempnode.setxsplit(thisnode.xsplit)
-        temp=[]
-        temp.append(tempnode)
-        thisnode.setchild(temp)
-        return
-    else:
-        bestattr, medianarr=choosebestattrc(thisnode,numsplit)
-        if(debug==1): print("best attr is "+str(bestattr))
-        tempnumchild = xnumchildhelperc[bestattr]
-        tempchildarr=[]
-        for i in range(tempnumchild):
-            temptarget=[]
-            tempylist=[0,0]
-            for j in thisnode.target:
-                if(xidentifier[bestattr]==3):
-                    if((xarrtrainc[bestattr][j]>medianarr[bestattr] and i==1) or (xarrtrainc[bestattr][j]<=medianarr[bestattr] and i==0 ) ):
-                        temptarget.append(j)
-                        if(yarrtrain[j]==0):
-                            tempylist[0]= tempylist[0]+1
-                        else:
-                            tempylist[1]= tempylist[1]+1
-                        
-                else:
-                    
-                    if(xarrtrainc[bestattr][j]==i):
-                        temptarget.append(j)
-                        if(yarrtrain[j]==0):
-                            tempylist[0]= tempylist[0]+1
-                        else:
-                            tempylist[1]= tempylist[1]+1
-            tempnode = Node(tempylist,temptarget)
-            tempnode.setxsplit(thisnode.xsplit)
-            tempnode.updatexsplit(bestattr,i)
-#             print("bestarr is "+str(bestattr))
-#             print("i is "+str(i))
-#             print(tempnode.xsplit)
-#             print(i)
-#             print(tempylist)
-            numsplitnew=[]
-            for j in range(23):
-                numsplitnew.append(numsplit[j])
-            if(xidentifier[bestattr]==3):
-                numsplitnew[bestattr] = numsplitnew[bestattr]+1
-            grownodec(tempnode,numsplitnew)
-            tempchildarr.append(tempnode)
-#         print("before setting child")
-#         printtree(thisnode)
-        thisnode.setspliton(bestattr)
-        if(xidentifier[bestattr]==3):
-            thisnode.setsplitval(medianarr[bestattr])
-        thisnode.setchild(tempchildarr)
-#         print("after setting child")
-#         printtree(thisnode)
-        return
+                costarr, newavgcost=findtotalcostarr(inparr,outarr,network, ojnparr,thetanparr)
                 
-tempysplit=[0,0]
-temptarget=[]
-for i in range(numtrain):
-    temptarget.append(i)
-    if(yarrtrain[i]==0):
-        tempysplit[0]= tempysplit[0]+1
-    else:
-        tempysplit[1]= tempysplit[1]+1
-root = Node(tempysplit,temptarget)
-grownodec(root, [0]*23)
-print("done")
-if(debug==1): printtree(root)
-    
-def testc(arr,thisnode):
-    if(len(thisnode.childlist)==1):
-        return thisnode.childlist[0].yleaf
-    else:
-        temp = thisnode.spliton
-        if(xidentifier[temp]==3):
-            temp2=arr[temp]
-            temp3=thisnode.splitvalue
-            if(temp2>temp3):
-                return testc(arr,thisnode.childlist[1])
-            else:
-                return testc(arr,thisnode.childlist[0])
-        else:
-            return testc(arr, thisnode.childlist[arr[temp]])
-
-debug=0
-# print(len(root.childlist))
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numtrain):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtrainc[j][i])
-    ypred = testc(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred==yarrtrain[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-    
-print((numright*1.0)/(1.0*numtrain))
-
-xarrvalic=[]
-for i in range(23):
-    xarrvalic.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numvali):
-            xarrvalic[i].append(xarrvaliori[i][j]+2)
-    elif(i==1):
-        for j in range(numvali):
-            xarrvalic[i].append(xarrvaliori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numvali):
-            xarrvalic[i].append(xarrvaliori[i][j])
-    else:
-        for j in range(numvali):
-            xarrvalic[i].append(xarrvaliori[i][j])
+                if(debug0==1): print("cost is")
+                if(debug0==1): print(newavgcost)
+                if(oldavgcost-newavgcost<costthres):
+                    print("oldcost is "+str(oldavgcost))
+                    print("newcost is "+str(newavgcost))
+                    print("cost is lower")
+                    break
+                elif(numwholedatapass>=maxepochallowed):
+                    break
+                else:
+                    #do nothing continue
+                    oldavgcost=newavgcost
+                
         
-# print(xarrvali)
-# print(yarrvali)
+            
+            
+            
+#         tempforwardpass = forwardpass(inparr[0],network)
+#         print(tempforwardpass)
+#         #lets see cost
+#         print("cost = "+str(findcost(tempforwardpass,outarr[0])))        
+    
+    return network,thetanparr
+sampleinparr = [[0.05, 0.10]]
+# sampleinparr = [[0.0, 1.0],[1.0,0.0],[0.0,0.0],[1.0,1.0]]
+# sampleinparr = [[0.0,0.0,0.0],[0.0,0.0,1.0],[0.0,1.0,0.0],[1.0,0.0,0.0],[0.0,1.0,1.0],[1.0,0.0,1.0],[1.0,1.0,0.0],[1.0,1.0,1.0]]
+sampleoutput = [[0.01, 0.99]]
+# sampleoutput = [[0.99],[0.99],[0.01],[0.99]]
+# sampleoutput=[[1.0,0.0],[1.0,0.0],[1.0,0.0],[1.0,0.0],[0.0,1.0],[0.0,1.0],[0.0,1.0],[0.0,1.0]]
+samplehiddeninfo = [2]
+samplelearningrate=0.1
+sampletheta = [[[.15,.20,.35],[.25,.30,.35]],[[.40,.45,.60],[.50,.55,.60]]]
 
-
-# test([1]*23,root)
-numright=0
-numwrong=0
-for i in range(numvali):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrvalic[j][i])
-    ypred = testc(temp,root)
-#     print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrvali[i]):
-#         print("right")
-        numright+=1
-    else:
-#         print("wrong")
-        numwrong+=1
-# print("hell")
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numvali))
-
-
-xarrtestc=[]
-for i in range(23):
-    xarrtestc.append([])
-for i in range(23):
-    if(i>=5 and i<=10):
-        for j in range(numtest):
-            xarrtestc[i].append(xarrtestori[i][j]+2)
-    elif(i==1):
-        for j in range(numtest):
-            xarrtestc[i].append(xarrtestori[i][j]-1)
-    elif(xidentifier[i]!=3):
-        for j in range(numtest):
-            xarrtestc[i].append(xarrtestori[i][j])
-    else:
-        for j in range(numtest):
-            xarrtestc[i].append(xarrtestori[i][j])
-        
-# print(xarrtest)
-# print(yarrtest)
+samplenetworksample,thetanparr = neuralnet(sampleinparr,sampleoutput,samplehiddeninfo,samplelearningrate,1, pow(10,-5),1000,sampletheta)
+print(samplenetworksample)
             
 
-# test([1]*23,root)
-debug=0
-numright=0
-numwrong=0
-for i in range(numtest):
-    temp=[]
-    for j in range(23):
-        temp.append(xarrtestc[j][i])
-    ypred = testc(temp,root)
-    if(debug==1): print(ypred)
-    if(ypred!=0 and ypred!=1):
-        print("error")
-    if(ypred==yarrtest[i]):
-        if(debug==1): print("right")
-        numright+=1
-    else:
-        if(debug==1): print("wrong")
-        numwrong+=1
-# print("hell")
-        
-print(numright)
-print(numwrong)
-print(numvali)
-print((numright*1.0)/(1.0*numtest))
-
+    
