@@ -1,0 +1,1 @@
+python neuralnetb.py $1 $2 $3
