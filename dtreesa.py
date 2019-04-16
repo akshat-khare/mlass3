@@ -340,14 +340,26 @@ def choosebestattr(thisnode):
     if(debug==1): print(itarr)
     if(debug==1): print("max inf gain is "+str(tempval))
     return maxone
-     
+import random  
 def allfeatureexplored(thisnode):
+    temp=0
     for i in range(23):
         if(thisnode.xsplit[i]<0):
             #False
-            return 1
+            temp+=1
+#             return 1
+    if(temp<=0):
+        # loltemp = random.random()
+        # # print(loltemp)
+        # if(loltemp>0.8):
+        #     return 0
+        # else:
+        #     return 1
+        return 0
+    else:
+        return 1
     #True
-    return 0
+#     return 0
                     
 def grownode(thisnode):
     if(thisnode.ylist[0]==0):
@@ -517,3 +529,13 @@ print(numright)
 print(numwrong)
 print(numvali)
 print((numright*1.0)/(1.0*numtest))
+
+def numnodes(root):
+    if((len(root.childlist))==1):
+        return 1
+    else:
+        temp=0
+        for i in root.childlist:
+            temp += numnodes(i)
+        return temp +1
+print(numnodes(root))

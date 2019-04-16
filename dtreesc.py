@@ -466,18 +466,28 @@ for i in range(23):
 # part c
 debug=0
 medianarr=[0.0]*23
-maxsplitallowed=3
+maxsplitallowed=30
+maxsplitarrmy=[0]*23
 def allfeatureexploredc(thisnode, numsplit):
+    # print("hello")
+    temp=0
     for i in range(23):
         if(xidentifier[i]!=3):
             if(thisnode.xsplit[i]<0):
                 #False
-                return 1
+                temp+=1
+                # return 1
         else:
+            if(numsplit[i]>maxsplitarrmy[i]):
+                # print(numsplit[i])
+                # print(i)
+                # print("update")
+                maxsplitarrmy[i]=numsplit[i]
             if(numsplit[i]<maxsplitallowed):
-                return 1
+                temp+=1
+                # return 1
     #True
-    return 0
+    return temp
 xnumchildhelperc=[]
 for i in range(23):
     if(xidentifier[i]!=3):
@@ -574,7 +584,7 @@ def grownodec(thisnode, numsplit):
         temp.append(tempnode)
         thisnode.setchild(temp)
         return
-    elif(allfeatureexplored(thisnode)==0):
+    elif(allfeatureexploredc(thisnode,numsplit)<=23):
         tempnode = Node(thisnode.ylist,thisnode.target)
         tempnode.setchild([])
         if(tempnode.ylist[1]>tempnode.ylist[0]):
@@ -798,3 +808,21 @@ print(numwrong)
 print(numvali)
 print((numright*1.0)/(1.0*numtest))
 
+def numnodes(root):
+    if((len(root.childlist))==1):
+        return 1
+    else:
+        temp=0
+        for i in root.childlist:
+            temp += numnodes(i)
+        return temp +1
+print(numnodes(root))
+
+mytemp=[]
+for i in range(23):
+    if(xidentifier[i]==3):
+        mytemp.append(0)
+    else:
+        mytemp.append(1)
+print(mytemp)
+print(maxsplitarrmy)

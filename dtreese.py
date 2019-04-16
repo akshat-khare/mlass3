@@ -756,7 +756,7 @@ for i in range(23):
     if(xidentifier[i]!=2):
         onehotxtrain.append([])
         for j in range(numtrain):
-            onehotxtrain[count].append(xarrtrain[i][j])
+            onehotxtrain[count].append(xarrtrainc[i][j])
         count+=1
     else:
         tempcat = xnumchildhelper[i]
@@ -785,7 +785,7 @@ for i in range(23):
     if(xidentifier[i]!=2):
         onehotxvali.append([])
         for j in range(numvali):
-            onehotxvali[count].append(xarrvali[i][j])
+            onehotxvali[count].append(xarrvalic[i][j])
         count+=1
     else:
         tempcat = xnumchildhelper[i]
@@ -814,7 +814,7 @@ for i in range(23):
     if(xidentifier[i]!=2):
         onehotxtest.append([])
         for j in range(numtest):
-            onehotxtest[count].append(xarrtest[i][j])
+            onehotxtest[count].append(xarrtestc[i][j])
         count+=1
     else:
         tempcat = xnumchildhelper[i]

@@ -460,6 +460,15 @@ def testwhole(thisnode,targetindex, xarrwhole, yarrwhole):
 #    print("accuracy ----------------------------" +str(acc))
     return acc
 numprune=0
+def allfeatureexplored(thisnode):
+    temp=0
+    for i in range(23):
+        if(thisnode.xsplit[i]<0):
+            #False
+            # return 1
+            temp+=1
+    #True
+    return temp
 def grownodeprune(thisnode, targetvaliindex, ylistvali):
  #   print("grownodeprune")
     if(thisnode.ylist[0]==0):
@@ -685,3 +694,12 @@ print(numwrong)
 print(numvali)
 print((numright*1.0)/(1.0*numtest))
 
+def numnodes(root):
+    if((len(root.childlist))==1):
+        return 1
+    else:
+        temp=0
+        for i in root.childlist:
+            temp += numnodes(i)
+        return temp +1
+print(numnodes(root))
